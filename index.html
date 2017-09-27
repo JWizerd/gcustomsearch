@@ -1,0 +1,44 @@
+<h1>Google Custom Search:</h1>
+<form action="" method="get" class="form">
+  <input id="s" type="text" placeholder="enter query" />
+  <button class="btn">Submit</button>
+</form>
+<div id="app"></div>
+
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous">
+</script>
+<script>
+    function l(arg) {
+      console.log(arg)
+    }
+
+  function getResponse(form) {
+    $.ajax({
+      type: "GET",
+      url: "https://www.googleapis.com/customsearch/v1?key=API_KEY&cx=SEARCH_ENGINE_ID&q=" + $(form + ' input').val(),
+      success: function(response) {
+        response['items'].forEach(function(result) {
+          $('#app').append('<p><a target="_blank" href="' + result.link +'">' + result.htmlTitle + '</a></p>')
+        })
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        if(xhr.status==403) {
+          console.log('403 forbidden')
+        }
+      },
+      timeout: 5000
+    });
+  }
+
+  function gCustomSearch(form) {
+    $(form).on('submit', function(e) {
+      e.preventDefault()
+      $('#app').html('')
+      getResponse(form)
+    })
+  }
+
+  gCustomSearch('.form', '#s')
+</script>
