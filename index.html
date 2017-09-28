@@ -41,4 +41,121 @@
   }
 
   gCustomSearch('.form', '#s')
+
+
+
+
+// FOR BIG COMMERCE CLIENT MADWIRE
+
+// Append initial search results wrapper
+$('#Header').append('<section id="search-results-wrapper"><button id="close-search-results">Close</button><div id="search-results"></div></section>')
+
+function getResponse(form) {
+ $.ajax({
+    type: "GET",
+    url: "https://www.googleapis.com/customsearch/v1?key=API_KEY&cx=SEARCH_ENGINE_ID&q=" + $(form + ' input').val(),
+    success: function(response) {
+      console.log("Google Custom Search query successful for query: " + $(form + ' input').val())
+      if (!response['items']) {
+        $('#search-results').append(
+          '<div class="search-result"><h1 class="error-message">No results found. Please try your search again.</h1></div>'
+        )
+      } else {
+        response['items'].forEach(function(result) {
+          $('#search-results').append(
+
+            '<div class="search-result">' +
+              '<h3 class="gcc-title">' + 
+                '<a href="' + result.link + '" class="gcc-link">' + 
+                 result.htmlTitle + 
+                '</a>' +
+              '</h3>' +
+              '<hr class="gcc-hr">' + 
+              '<p>' + result.snippet + '</p>' +
+            '</div><!-- search result -->'
+
+          )
+        })
+      }
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      if(xhr.status==403) {
+        console.log('403 forbidden. Please contact your web developer.')
+      }
+   },
+   timeout: 5000
+ });
+}
+
+function closeSearch() {
+  $('#close-search-results').on('click', function(e){
+    e.preventDefault()
+    $('#search-results-wrapper').hide()
+  })
+}
+
+
+function gCustomSearch(form) {
+
+  $(form).on('submit', function(e) {
+    // prevent submit form from creating http request
+    e.preventDefault()
+    $srw = $('#search-results-wrapper')
+    $sr = $('#search-results')
+
+    // clear results everytime a new search is made
+    $sr.html('')
+
+    $srw.show()
+
+    // display results in search wrapper
+    getResponse(form)
+
+    // close search when close button is clicked
+    closeSearch()
+  })
+
+}
+
 </script>
+
+<style>
+
+/* Search Results */
+#search-results-wrapper {
+  display: none;
+  position: relative;
+  background: white;
+  border: 1px solid #ddd;
+}
+
+#close-search-results, 
+#search-results {
+  position: absolute;
+}
+
+#close-search-results {
+  z-index: 100;
+  top: 0;
+  right: 0;
+}
+
+#search-results-wrapper,
+#search-results {
+  height: 300px;
+  width: 100%;
+  max-width: 100%;
+}
+
+#search-results {
+  overflow-y: scroll;
+  top: 0;
+  left: 0;
+}
+
+.search-result {
+  padding: 15px;
+}
+
+
+</style>
